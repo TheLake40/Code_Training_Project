@@ -8,6 +8,13 @@ public class PlayerController : MonoBehaviour
     private PlayerInput _input; //field to reference Player Input component
     private Rigidbody2D _rigidbody;
 
+    //add this to reference a prefab that is set in the inspector
+    public GameObject ball;
+    //...
+
+    //NEW remember facing direction (even after stop)
+    private Vector2 _facingVector = Vector2.right;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -35,6 +42,16 @@ public class PlayerController : MonoBehaviour
         if (_input.actions["Fire"].WasPressedThisFrame())
         {
             Debug.Log("Fire activated!");
+
+            //create a new object that clones ball prefab
+            // at this objects position and rotation
+            //and use a new variable ballPrefab to refer to the clone
+            var ballPrefab = Instantiate(ball, transform.position, Quaternion.identity);
+
+            //*CHANGE* instead of changing rigidbody velocity: 
+            //call SetDirection from BallController on new ball
+            ballPrefab.GetComponent<BallController>()?.SetDirection(_facingVector);
+
         }
     }
 
@@ -42,9 +59,15 @@ public class PlayerController : MonoBehaviour
     {
         //set direction to the Move action's Vector2 value
         var dir = _input.actions["Move"].ReadValue<Vector2>();
+        
 
         //change the velocity to match the Move (every physics update)
         _rigidbody.velocity = dir * 5;
+
+        if (dir.magnitude > .5)
+        {
+            _facingVector = _rigidbody.velocity;
+        }
     }
 }
 
