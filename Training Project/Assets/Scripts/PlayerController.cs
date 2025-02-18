@@ -38,8 +38,10 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if Fire action was performed log it to the console
-        if (_input.actions["Fire"].WasPressedThisFrame())
+        if (GameManager.Instance.State == Gamestate.Playing)
+        {
+            //if Fire action was performed log it to the console
+            if (_input.actions["Fire"].WasPressedThisFrame())
         {
             Debug.Log("Fire activated!");
 
@@ -53,20 +55,26 @@ public class PlayerController : MonoBehaviour
             ballPrefab.GetComponent<BallController>()?.SetDirection(_facingVector);
 
         }
+        return;
+    }
     }
 
     private void FixedUpdate()
     {
-        //set direction to the Move action's Vector2 value
-        var dir = _input.actions["Move"].ReadValue<Vector2>();
-        
-
-        //change the velocity to match the Move (every physics update)
-        _rigidbody.velocity = dir * 5;
-
-        if (dir.magnitude > .5)
+        if (GameManager.Instance.State == Gamestate.Playing)
         {
-            _facingVector = _rigidbody.velocity;
+            //set direction to the Move action's Vector2 value
+            var dir = _input.actions["Move"].ReadValue<Vector2>();
+
+
+            //change the velocity to match the Move (every physics update)
+            _rigidbody.velocity = dir * 5;
+
+            if (dir.magnitude > .5)
+            {
+                _facingVector = _rigidbody.velocity;
+            }
+            return;
         }
     }
 }
