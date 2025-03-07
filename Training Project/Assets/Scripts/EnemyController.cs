@@ -48,6 +48,11 @@ public class EnemyController : MonoBehaviour
        
     }
 
+    public void AcceptDefeat()
+    {
+        Destroy(gameObject);
+    }
+
     //IEnumerator return type for coroutine
     //that can yield for time and come back
      private IEnumerator PatrolCoroutine()
