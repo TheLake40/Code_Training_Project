@@ -5,12 +5,19 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    [SerializeField] private float patrolDelay = 1.5f;
+    [SerializeField] private float patrolSpeed = 3;
+
     private Rigidbody2D _rigidbody;
-    private Vector2 _direction = Vector2.right;
+    private Vector2 _patrolTargetPosition;
+    private WaypointPath _waypointPath;
+    
 
     void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
+
+        _waypointPath = GetComponentInChildren<WaypointPath>();
     }
 
     void Start()
@@ -20,12 +27,20 @@ public class EnemyController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
-        if(GameManager.Instance.State == Gamestate.Playing)
+        Vector2 _direction = _patrolTargetPosition - (Vector2)transform.position;
+
+        if (_direction.magnitude <= 0.1)
+        {
+            _patrolTargetPosition = _waypointPath.GetNextWaypointPosition();
+
+
+        }
+
+        if (GameManager.Instance.State == Gamestate.Playing)
         {
             //keep resetting the velocity to the
             //direction * speed even if nudged
-            _rigidbody.velocity = _direction * 2;
+            _rigidbody.velocity = _direction.normalized * patrolSpeed;
         }else
         {
             _rigidbody.velocity = Vector2.zero;
@@ -35,15 +50,38 @@ public class EnemyController : MonoBehaviour
 
     //IEnumerator return type for coroutine
     //that can yield for time and come back
-    IEnumerator PatrolCoroutine()
+     private IEnumerator PatrolCoroutine()
     {
+        _patrolTargetPosition = _waypointPath.GetNextWaypointPosition();
         //change the direction every second
-        while (true)
+        /*while (true)
         {
             _direction = new Vector2(1, -1);
             yield return new WaitForSeconds(1);
             _direction = new Vector2(-1, 1);
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(1);*//*
+        }*/
+        yield break;
+    }
+
+    private void OnEnable()
+    {
+        GameManager.OnAfterStateChange += HandleGameStateChange;
+    }
+    private void OnDisable()
+    {
+        GameManager.OnAfterStateChange -= HandleGameStateChange;
+    }
+
+    private void HandleGameStateChange(Gamestate state)
+    {
+        if (state == Gamestate.Starting)
+        {
+            GetComponent<SpriteRenderer>().color = Color.gray;
+        }
+        if (state == Gamestate.Playing)
+        {
+            GetComponent<SpriteRenderer>().color = Color.magenta;
         }
     }
 }

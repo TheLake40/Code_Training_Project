@@ -38,7 +38,21 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.Instance.State == Gamestate.Playing)
+        //BEGIN NEW CODE
+        if (_input.actions["Pause"].WasPressedThisFrame())
+        {
+            GameManager.Instance.TogglePause();
+        }
+        //END NEW CODE
+
+        if (GameManager.Instance.State != Gamestate.Playing) return;
+
+
+        //fire
+        
+        if (_input.actions["Fire"].WasPressedThisFrame())
+
+            if (GameManager.Instance.State == Gamestate.Playing)
         {
             //if Fire action was performed log it to the console
             if (_input.actions["Fire"].WasPressedThisFrame())
