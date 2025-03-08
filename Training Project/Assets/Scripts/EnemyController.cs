@@ -7,6 +7,8 @@ public class EnemyController : MonoBehaviour
 {
     [SerializeField] private float patrolDelay = 1.5f;
     [SerializeField] private float patrolSpeed = 3;
+    [SerializeField] private int damage = 3;
+    [SerializeField] private float knockback = 3f;
 
     private Rigidbody2D _rigidbody;
     private Vector2 _patrolTargetPosition;
@@ -50,10 +52,7 @@ public class EnemyController : MonoBehaviour
        
     }
 
-    public void AcceptDefeat()
-    {
-        Destroy(gameObject);
-    }
+  
 
     //IEnumerator return type for coroutine
     //that can yield for time and come back
@@ -75,6 +74,24 @@ public class EnemyController : MonoBehaviour
         }
         yield break;
     }
+
+    public void AcceptDefeat()
+    {
+        Destroy(gameObject);
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.transform.CompareTag("Player")) 
+        {
+            other.transform.GetComponent<HealthSystem>()?.Damage(damage);
+
+            Vector2 awayDirection = other.transform.position - transform.position;
+
+            other.transform.GetComponent<PlayerController>()?.Knockback(awayDirection * knockback);
+        }
+    }
+
 
     private void OnEnable()
     {
