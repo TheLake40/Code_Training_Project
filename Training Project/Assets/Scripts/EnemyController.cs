@@ -27,6 +27,8 @@ public class EnemyController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!_waypointPath) return;
+
         Vector2 _direction = _patrolTargetPosition - (Vector2)transform.position;
 
         if (_direction.magnitude <= 0.1)
@@ -57,15 +59,20 @@ public class EnemyController : MonoBehaviour
     //that can yield for time and come back
      private IEnumerator PatrolCoroutine()
     {
-        _patrolTargetPosition = _waypointPath.GetNextWaypointPosition();
-        //change the direction every second
-        /*while (true)
+        if (_waypointPath)
         {
-            _direction = new Vector2(1, -1);
-            yield return new WaitForSeconds(1);
-            _direction = new Vector2(-1, 1);
-            yield return new WaitForSeconds(1);*//*
-        }*/
+            _patrolTargetPosition = _waypointPath.GetNextWaypointPosition();
+        }
+        else
+        {
+            //change the direction every second
+
+            _rigidbody.velocity = new Vector2(1 , - 1);
+                yield return new WaitForSeconds(patrolDelay);
+            _rigidbody.velocity = new Vector2(-1, 1);
+                yield return new WaitForSeconds(patrolDelay);
+            
+        }
         yield break;
     }
 
