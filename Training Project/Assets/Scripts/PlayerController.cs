@@ -5,8 +5,14 @@ using UnityEngine.InputSystem; //Don't miss this!
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private float speed = 1.0f;
+
     private PlayerInput _input; //field to reference Player Input component
     private Rigidbody2D _rigidbody;
+    private Animator _animator;
+    
+    private float SprintSpeed = 1.4f;
+    private float tempSpeed;
 
     //add this to reference a prefab that is set in the inspector
     public GameObject ball;
@@ -19,6 +25,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        tempSpeed = speed;
         //set reference to PlayerInput component on this object
         //Top Action Map, "Player" should be active by default
         _input = GetComponent<PlayerInput>();
@@ -29,6 +36,7 @@ public class PlayerController : MonoBehaviour
 
         //transform.position = new Vector2(3, -1);
         //Invoke(nameof(AcceptDefeat), 10);
+        _animator = GetComponent<Animator>();
     }
 
     public void AcceptDefeat()
@@ -83,9 +91,29 @@ public class PlayerController : MonoBehaviour
                     ballPrefab.GetComponent<BallController>()?.SetDirection(_facingVector);
 
                 }
-            
-        return;
-    }
+
+            if (_input.actions["Sprint"].WasPerformedThisFrame())
+            {
+                _animator.Play("PlayerSprintEnter");
+
+                speed = SprintSpeed;
+
+                if(_input.actions["Sprint"].WasReleasedThisFrame() == false)
+                {
+                    _animator.Play("PlayerSprintActive");
+                }
+
+            }
+            if (_input.actions["Sprint"].WasReleasedThisFrame())
+            {
+                _animator.Play("PlayerSprintExit");
+
+                speed = tempSpeed;
+
+            }
+
+            return;
+    }   
     }
 
     private void FixedUpdate()
@@ -97,11 +125,13 @@ public class PlayerController : MonoBehaviour
             if (!_isKnockback)
             {
                 //set direction to the Move action's Vector2 value
-                var dir = _input.actions["Move"].ReadValue<Vector2>();
+                var dir = _input.actions["Move"].ReadValue<Vector2>() * speed;
+
+                
 
 
-                //change the velocity to match the Move (every physics update)
-                _rigidbody.velocity = dir * 5;
+                    //change the velocity to match the Move (every physics update)
+                    _rigidbody.velocity = dir * 5;
 
                 if (dir.magnitude > .5)
                 {
