@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour
     private Rigidbody2D _rigidbody;
     private Vector2 _patrolTargetPosition;
     private WaypointPath _waypointPath;
+    private Animator _animator;
     
 
     void Awake()
@@ -20,6 +21,7 @@ public class EnemyController : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody2D>();
 
         _waypointPath = GetComponentInChildren<WaypointPath>();
+        _animator = GetComponent<Animator>();
     }
 
     void Start()
@@ -77,7 +79,13 @@ public class EnemyController : MonoBehaviour
 
     public void AcceptDefeat()
     {
+        GameEventDispatcher.TriggerEnemyDefeated();
         Destroy(gameObject);
+    }
+
+    public void TakeHit()
+    {
+        _animator.Play("EnemyHit");
     }
 
     private void OnCollisionEnter2D(Collision2D other)
